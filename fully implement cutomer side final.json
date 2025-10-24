@@ -108,7 +108,7 @@
       "name": "Google Gemini Chat Model",
       "credentials": {
         "googlePalmApi": {
-          "id": "DXQ85fTL1N1rTrPd",
+          "id": "",
           "name": "Google Gemini(PaLM) Api account"
         }
       }
@@ -120,14 +120,14 @@
           "value": "1jNVlPV2EY7O9Amw1NmYgiWHuGI8yalxjGnOxrHGfAOM",
           "mode": "list",
           "cachedResultName": "Untitled spreadsheet",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jNVlPV2EY7O9Amw1NmYgiWHuGI8yalxjGnOxrHGfAOM/edit?usp=drivesdk"
+          "cachedResultUrl": ""
         },
         "sheetName": {
           "__rl": true,
           "value": 152132010,
           "mode": "list",
           "cachedResultName": "beauty products",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jNVlPV2EY7O9Amw1NmYgiWHuGI8yalxjGnOxrHGfAOM/edit#gid=152132010"
+          "cachedResultUrl": ""
         },
         "options": {}
       },
@@ -141,14 +141,14 @@
       "name": "Get row(s) in sheet in Google Sheets",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "Nec71CikxJu6Zjal",
+          "id": "",
           "name": "Google Sheets account"
         }
       }
     },
     {
       "parameters": {
-        "sendTo": "testhazrat@gmail.com",
+        "sendTo": "",
         "subject": "New order",
         "emailType": "text",
         "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
