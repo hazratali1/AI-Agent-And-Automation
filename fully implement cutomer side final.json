@@ -1,0 +1,267 @@
+{
+  "name": "fully implement cutomer side",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "0b27954d-c734-42c8-b702-5c5c153ae6b2",
+      "name": "When Chat Message Received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -208,
+        -112
+      ],
+      "webhookId": "c756fd9f-cd0e-4172-a85b-43d5aeea08a1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "You are a friendly multilingual shopping assistant. Automatically detect and respond in the customer's language. Help customers find products, provide detailed information, and collect their order details (name, phone, address). Once you have all order information, use the send tool to send the order to gmail ."
+        }
+      },
+      "id": "5a0bf78b-737b-452a-a192-91f4d655ed5a",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        200,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "message": "={{$json.answer || $json.formatted_markdown || $json.text || $json.message || 'Done'}}\n",
+        "options": {}
+      },
+      "id": "d8128c92-87a0-4eb1-b02b-5c083fa88726",
+      "name": "Respond to Chat",
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1,
+      "position": [
+        736,
+        -112
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 120
+      },
+      "id": "fa462508-0a90-4e75-b129-82ac6598a2f7",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v17.0/{{ $env.WHATSAPP_PHONE_ID }}/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.WHATSAPP_API_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"{{ $env.ADMIN_PHONE }}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"🛒 NEW ORDER\\n\\n👤 Customer: {{ $fromAI('customerName') }}\\n📞 Phone: {{ $fromAI('phone') }}\\n📍 Address: {{ $fromAI('address') }}\\n\\n📦 Order Details:\\n{{ $fromAI('orderDetails') }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "3e9ffd19-0900-4d35-be9a-833d5248db81",
+      "name": "notify_admin",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        272,
+        112
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {
+          "maxOutputTokens": 2048
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        16,
+        112
+      ],
+      "id": "9fcf29f5-ae09-4636-b69e-3de90767363c",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "DXQ85fTL1N1rTrPd",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1jNVlPV2EY7O9Amw1NmYgiWHuGI8yalxjGnOxrHGfAOM",
+          "mode": "list",
+          "cachedResultName": "Untitled spreadsheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jNVlPV2EY7O9Amw1NmYgiWHuGI8yalxjGnOxrHGfAOM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 152132010,
+          "mode": "list",
+          "cachedResultName": "beauty products",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jNVlPV2EY7O9Amw1NmYgiWHuGI8yalxjGnOxrHGfAOM/edit#gid=152132010"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        400,
+        112
+      ],
+      "id": "319b41c8-2a4d-4c79-9f70-14c40c537fac",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Nec71CikxJu6Zjal",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "testhazrat@gmail.com",
+        "subject": "New order",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        528,
+        112
+      ],
+      "id": "563d68fa-cb9d-4b32-a6b0-4ca3d2af812f",
+      "name": "Send",
+      "webhookId": "a1ac5880-b371-467b-95c3-18b0b07ec347",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "dxQouN9FNcLMAn71",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Chat Message Received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "notify_admin": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8f5b2d8a-9297-404b-8f7a-91aa3d05e6ba",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6a1b562313370a170d4d1d2ab8582e3ec9973f78307a0dea943338dd649d2cb1"
+  },
+  "id": "YMSnfiVVfjNB64Qj",
+  "tags": []
+}
